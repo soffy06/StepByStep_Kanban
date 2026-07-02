@@ -1,0 +1,147 @@
+.timeline-container {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.timeline-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.timeline-controls select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  flex: 1;
+  min-width: 200px;
+  font-size: 14px;
+}
+
+.timeline-task-info {
+  background: #f8f9fa;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border-left: 4px solid #0052cc;
+}
+
+.timeline-task-info h3 {
+  margin: 0 0 4px 0;
+  color: #172b4d;
+}
+
+.timeline-task-info p {
+  margin: 0;
+  color: #5e6c84;
+  font-size: 14px;
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.timeline-entry {
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border-left: 4px solid #0052cc;
+  transition: background 0.2s;
+}
+
+.timeline-entry:hover {
+  background: #f0f2f5;
+}
+
+.entry-delete-btn {
+  align-self: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.entry-delete-btn:hover {
+  opacity: 1;
+  background: #ffe1e1;
+}
+
+.entry-date {
+  font-weight: 600;
+  color: #42526e;
+  min-width: 100px;
+  font-size: 14px;
+}
+
+.entry-content {
+  flex: 1;
+}
+
+.entry-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.entry-hours {
+  font-weight: 600;
+  color: #0052cc;
+  font-size: 14px;
+}
+
+.entry-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.entry-status.todo {
+  background: #e4e6ea;
+  color: #42526e;
+}
+
+.entry-status.in-progress {
+  background: #deebff;
+  color: #0052cc;
+}
+
+.entry-status.review {
+  background: #fff0b3;
+  color: #7a5a00;
+}
+
+.entry-status.done {
+  background: #d4f0d4;
+  color: #006644;
+}
+
+.entry-comment {
+  color: #5e6c84;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #5e6c84;
+  padding: 40px 0;
+  font-size: 16px;
+}
