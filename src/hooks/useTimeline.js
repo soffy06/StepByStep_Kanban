@@ -1,7 +1,19 @@
 import { useState, useEffect } from 'react';
-import { db, timelineCollection, onSnapshot, query, where, orderBy, addDoc, deleteDoc, doc } from '../config/firebase';
+import { db } from '../config/firebase';
+import { 
+  collection, 
+  onSnapshot, 
+  query, 
+  where, 
+  orderBy, 
+  addDoc, 
+  deleteDoc, 
+  doc 
+} from 'firebase/firestore';
 
-export const useTimeline = (taskId = null, userId = null) => {
+const timelineCollection = collection(db, 'timeline');
+
+export const useTimeline = (taskId = null, userId = null) =>{
   const [timeline, setTimeline] = useState([]);
   const [loading, setLoading] = useState(true);
 
