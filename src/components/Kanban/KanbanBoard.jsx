@@ -9,12 +9,18 @@ const COLUMNS = [
   { id: 'done', title: 'Completado' }
 ];
 
+// Orden de prioridades
+const PRIORITY_ORDER = {
+  high: 1,
+  medium: 2,
+  low: 3
+};
+
 function KanbanBoard({ tasks, onTaskClick, onUpdateTask }) {
 
   const handleDragEnd = (result) => {
     const { destination, draggableId } = result;
 
-    // si suelta fuera de una columna
     if (!destination) return;
 
     const newStatus = destination.droppableId;
@@ -22,7 +28,6 @@ function KanbanBoard({ tasks, onTaskClick, onUpdateTask }) {
 
     if (!task) return;
 
-    // solo actualiza si cambia de columna
     if (task.status !== newStatus) {
       onUpdateTask(draggableId, { status: newStatus });
     }
@@ -33,13 +38,31 @@ function KanbanBoard({ tasks, onTaskClick, onUpdateTask }) {
       <div className="kanban-board">
 
         {COLUMNS.map((column) => {
-          const columnTasks = tasks.filter(t => t.status === column.id);
+
+          // Filtrar y ordenar tareas
+          const columnTasks = tasks
+            .filter(t => t.status === column.id)
+            .sort((a, b) => {
+
+              // Primero por prioridad
+              const priorityDiff =
+                PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
+
+              if (priorityDiff !== 0) return priorityDiff;
+
+              // Luego por fecha de inicio
+              if (!a.startDate) return 1;
+              if (!b.startDate) return -1;
+
+              return new Date(a.startDate) - new Date(b.startDate);
+            });
 
           return (
             <div key={column.id} className="kanban-column">
 
               <div className="column-header">
                 <h2>{column.title}</h2>
+
                 <span className="task-count">
                   {columnTasks.length}
                 </span>
@@ -78,6 +101,7 @@ function KanbanBoard({ tasks, onTaskClick, onUpdateTask }) {
                     ))}
 
                     {provided.placeholder}
+
                   </div>
                 )}
               </Droppable>
@@ -85,6 +109,7 @@ function KanbanBoard({ tasks, onTaskClick, onUpdateTask }) {
             </div>
           );
         })}
+
       </div>
     </DragDropContext>
   );
