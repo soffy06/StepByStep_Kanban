@@ -50,10 +50,6 @@ function App() {
           </p>
 
           <p className="project-info">
-            Versión 1.0
-          </p>
-
-          <p className="project-info">
             {currentDateTime}
           </p>
 
@@ -187,12 +183,6 @@ marginTop:"20px"
 }}
 >
 
-<button
-className="btn-secondary"
-onClick={()=>setShowHelp(false)}
->
-Cancelar
-</button>
 
 <button
 className="btn-primary"

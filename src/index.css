@@ -14,7 +14,7 @@
 /* LINKS */
 a {
   font-weight: 500;
-  color: #0052cc;
+  color: #001bcc;
   text-decoration: none;
 }
 
@@ -27,7 +27,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background-color: #9899be;
 }
 
 /* TITULOS */
@@ -56,5 +56,5 @@ button:hover {
 /* FOCUS accesibilidad */
 button:focus,
 button:focus-visible {
-  outline: 2px solid #0052cc;
+  outline: 2px solid #183c71;
 }
