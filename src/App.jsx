@@ -162,6 +162,12 @@ Si tienes alguna duda o comentario sobre el sistema,
 escríbelo aquí.
 </p>
 
+<p style={{ marginTop: "10px" }}>
+  📄 <a href="/Documentacion.pdf" target="_blank" rel="noopener noreferrer">
+    Ver documentación (PDF)
+  </a>
+</p>
+
 <textarea
   rows="6"
   placeholder="Escriba aquí su pregunta..."
