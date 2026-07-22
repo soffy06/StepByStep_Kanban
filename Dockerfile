@@ -1,13 +1,21 @@
 # Etapa 1: Build
 FROM node:22-alpine AS builder
 
+# Instalar dependencias del sistema necesarias para compilar módulos nativos
+RUN apk add --no-cache python3 make g++
+
 WORKDIR /app
 
 # Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm ci
+# Limpiar caché y reinstalar todo desde cero
+RUN npm cache clean --force && \
+    rm -rf node_modules package-lock.json && \
+    npm install --no-audit --no-fund
+
+# Instalar específicamente el módulo faltante para Alpine
+RUN npm install @rollup/rollup-linux-x64-musl --save-optional || true
 
 # Copiar el resto del código
 COPY . .
@@ -30,7 +38,7 @@ ENV VITE_FIREBASE_MESSAGING_SENDER_ID=$VITE_FIREBASE_MESSAGING_SENDER_ID
 ENV VITE_FIREBASE_APP_ID=$VITE_FIREBASE_APP_ID
 ENV VITE_FIREBASE_MEASUREMENT_ID=$VITE_FIREBASE_MEASUREMENT_ID
 
-# Construir la aplicación (las variables estarán disponibles)
+# Construir la aplicación
 RUN npm run build
 
 # Etapa 2: Servir con Nginx
