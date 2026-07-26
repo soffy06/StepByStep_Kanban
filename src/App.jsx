@@ -1,8 +1,10 @@
+// src/App.jsx
 import { useState, useEffect } from 'react';
 import KanbanBoard from './components/Kanban/KanbanBoard';
 import GanttChart from './components/Gantt/GanttChart';
 import TaskTimeline from './components/Timeline/TaskTimeline';
 import TaskModal from './components/Modals/TaskModal';
+import { RocketLoader } from './components/Loading/RocketLoader';
 import { useFirestore } from './hooks/useFirestore';
 import './styles/App.css';
 
@@ -12,9 +14,11 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   const { tasks, loading, addTask, updateTask, deleteTask } = useFirestore();
 
+  // Reloj en tiempo real
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
@@ -27,57 +31,53 @@ function App() {
     };
 
     updateClock();
-
     const interval = setInterval(updateClock, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return <div className="loading">Cargando...</div>;
+  // Delay de 3 segundos para la carga
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 3000); // 3 segundos
+
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
+  if (loading || isLoading) {
+    return <RocketLoader />;
   }
 
   return (
     <div className="app">
-
       <header className="app-header">
-
         <div>
           <h1>🚀 Step By Step Kanban</h1>
-
-          <p className="project-info">
-            Sistema para la gestión de proyectos
-          </p>
-
-          <p className="project-info">
-            {currentDateTime}
-          </p>
-
+          <p className="project-info">Sistema para la gestión de proyectos</p>
+          <p className="project-info">{currentDateTime}</p>
         </div>
 
         <div className="nav-buttons">
-
           <button
             className={view === 'kanban' ? 'active' : ''}
             onClick={() => setView('kanban')}
           >
             Tablero
           </button>
-
           <button
             className={view === 'gantt' ? 'active' : ''}
             onClick={() => setView('gantt')}
           >
             Cronograma
           </button>
-
           <button
             className={view === 'timeline' ? 'active' : ''}
             onClick={() => setView('timeline')}
           >
             Línea de tiempo
           </button>
-
           <button
             className="btn-primary"
             onClick={() => {
@@ -87,20 +87,16 @@ function App() {
           >
             + Nueva Tarea
           </button>
-
           <button
-           className="floating-help"
-           onClick={() => setShowHelp(true)}
->
-           💬 Preguntas
+            className="floating-help"
+            onClick={() => setShowHelp(true)}
+          >
+            💬 Preguntas
           </button>
-
         </div>
-
       </header>
 
       <main className="app-main">
-
         {view === 'kanban' && (
           <KanbanBoard
             tasks={tasks}
@@ -111,15 +107,8 @@ function App() {
             onUpdateTask={updateTask}
           />
         )}
-
-        {view === 'gantt' && (
-          <GanttChart tasks={tasks} />
-        )}
-
-        {view === 'timeline' && (
-          <TaskTimeline tasks={tasks} />
-        )}
-
+        {view === 'gantt' && <GanttChart tasks={tasks} />}
+        {view === 'timeline' && <TaskTimeline tasks={tasks} />}
       </main>
 
       {showModal && (
@@ -146,76 +135,53 @@ function App() {
       )}
 
       {showHelp && (
-        <div
-          className="modal-overlay"
-          onClick={() => setShowHelp(false)}
-        >
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-
-           <h2>💬 Preguntas o sugerencias</h2>
-
-<p>
-Si tienes alguna duda o comentario sobre el sistema,
-escríbelo aquí.
-</p>
-
-<p style={{ marginTop: "10px" }}>
-  📄 <a href="/Documentacion.pdf" target="_blank" rel="noopener noreferrer">
-    Ver documentación (PDF)
-  </a>
-</p>
-
-<textarea
-  rows="6"
-  placeholder="Escriba aquí su pregunta..."
-  style={{
-    width:"100%",
-    marginTop:"15px",
-    padding:"12px",
-    borderRadius:"8px",
-    resize:"none"
-  }}
-></textarea>
-
-<div
-style={{
-display:"flex",
-justifyContent:"flex-end",
-gap:"10px",
-marginTop:"20px"
-}}
->
-
-
-<button
-className="btn-primary"
-onClick={()=>{
-
-alert("Pregunta enviada.");
-
-setShowHelp(false);
-
-}}
->
-Enviar
-</button>
-
-</div>
-
-            <button
-              className="btn-primary"
-              onClick={() => setShowHelp(false)}
+        <div className="modal-overlay" onClick={() => setShowHelp(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>💬 Preguntas o sugerencias</h2>
+            <p>Si tienes alguna duda o comentario sobre el sistema, escríbelo aquí.</p>
+            <p style={{ marginTop: '10px' }}>
+              📄 <a href="/Documentacion.pdf" target="_blank" rel="noopener noreferrer">
+                Ver documentación (PDF)
+              </a>
+            </p>
+            <textarea
+              rows="6"
+              placeholder="Escriba aquí su pregunta..."
+              style={{
+                width: '100%',
+                marginTop: '15px',
+                padding: '12px',
+                borderRadius: '8px',
+                resize: 'none'
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '10px',
+                marginTop: '20px'
+              }}
             >
-              Cerrar
-            </button>
-
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  alert('Pregunta enviada.');
+                  setShowHelp(false);
+                }}
+              >
+                Enviar
+              </button>
+              <button
+                className="btn-primary"
+                onClick={() => setShowHelp(false)}
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }
