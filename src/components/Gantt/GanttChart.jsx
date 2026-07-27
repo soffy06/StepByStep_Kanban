@@ -1,3 +1,4 @@
+// src/components/Gantt/GanttChart.jsx
 import { useState } from 'react';
 import '../../styles/components/Gantt.css';
 
@@ -10,7 +11,7 @@ function GanttChart({ tasks }) {
     ? tasks 
     : tasks.filter(t => t.assignedTo === filterUser);
 
-  const allDates = tasks.flatMap(t => [t.startDate, t.endDate]).filter(Boolean);
+  const allDates = tasks.flatMap(t => [t.startDate, t.dueDate]).filter(Boolean);
   
   if (allDates.length === 0) {
     return (
@@ -60,34 +61,37 @@ function GanttChart({ tasks }) {
             <div className="gantt-day-label">Días hábiles</div>
             <div className="gantt-days-row">
               {Array.from({ length: Math.min(totalDays, 60) }, (_, i) => (
-                <div key={i} className="gantt-day">
-                  {i + 1}
-                </div>
+                <div key={i} className="gantt-day">{i + 1}</div>
               ))}
             </div>
           </div>
         </div>
         
         {filteredTasks.map(task => {
-          if (!task.startDate || !task.endDate) return null;
+          if (!task.startDate || !task.dueDate) return null;
           
           const left = getTaskPosition(task.startDate);
-          const width = getTaskWidth(task.startDate, task.endDate);
+          const width = getTaskWidth(task.startDate, task.dueDate);
           
           return (
             <div key={task.id} className="gantt-row">
-              <div className="gantt-task-name">{task.title}</div>
+              <div className="gantt-task-name">
+                {task.title}
+                {task.estimatedHours && (
+                  <span className="gantt-hours"> ⏱️ {task.estimatedHours}h</span>
+                )}
+              </div>
               <div className="gantt-bars">
                 <div 
                   className="gantt-bar"
                   style={{
                     marginLeft: `${(left / totalDays) * 100}%`,
                     width: `${(width / totalDays) * 100}%`,
-                    backgroundColor: task.status === 'done' ? '#4caf50' : '#2196f3'
+                    backgroundColor: task.status === 'Completado' ? '#4caf50' : '#2196f3'
                   }}
-                  title={`${task.title} (${task.startDate} - ${task.endDate})`}
+                  title={`${task.title} (${task.startDate} - ${task.dueDate})`}
                 >
-                  {task.title}
+                  {task.title} {task.estimatedHours && `(${task.estimatedHours}h)`}
                 </div>
               </div>
             </div>

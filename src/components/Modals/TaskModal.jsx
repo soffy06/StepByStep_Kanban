@@ -1,190 +1,231 @@
+// src/components/Modals/TaskModal.jsx
 import { useState, useEffect } from 'react';
-import '../../styles/components/Modal.css';
 
-function TaskModal({ task, onClose, onSave, onDelete }) {
+const TaskModal = ({ task, onClose, onSave, onDelete }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    status: 'todo',
-    priority: 'medium',
-    assignedTo: '',
+    status: 'Pendiente',
     startDate: '',
-    endDate: '',
-    estimatedHours: ''
+    dueDate: '',
+    priority: 'Baja',
+    assignedTo: '',
+    tags: '',
+    estimatedHours: '' // 👈 Mantengo solo horas
   });
+
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     if (task) {
       setFormData({
         title: task.title || '',
         description: task.description || '',
-        status: task.status || 'todo',
-        priority: task.priority || 'medium',
-        assignedTo: task.assignedTo || '',
+        status: task.status || 'Pendiente',
         startDate: task.startDate || '',
-        endDate: task.endDate || '',
+        dueDate: task.dueDate || '',
+        priority: task.priority || 'Baja',
+        assignedTo: task.assignedTo || '',
+        tags: task.tags || '',
         estimatedHours: task.estimatedHours || ''
       });
     }
   }, [task]);
 
-  // Fecha actual en formato YYYY-MM-DD
-  const today = new Date().toISOString().split('T')[0];
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'title' && errors.title) {
+      setErrors(prev => ({ ...prev, title: '' }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    if (name === 'title') validateTitle();
+  };
+
+  const validateTitle = () => {
+    if (!formData.title || formData.title.trim() === '') {
+      setErrors(prev => ({ ...prev, title: 'El título es obligatorio' }));
+      return false;
+    }
+    setErrors(prev => ({ ...prev, title: '' }));
+    return true;
+  };
+
+  const validateForm = () => {
+    return validateTitle();
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    setTouched({ title: true });
+    if (validateForm()) {
+      const dataToSave = {
+        ...formData,
+        estimatedHours: formData.estimatedHours ? Number(formData.estimatedHours) : null
+      };
+      onSave(dataToSave);
+    } else {
+      const firstError = document.querySelector('.error-message');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  };
+
+  const getFieldError = (fieldName) => {
+    return touched[fieldName] && errors[fieldName] ? errors[fieldName] : '';
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{task ? '✏️ Editar Tarea' : '➕ Nueva Tarea'}</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
+      <div className="modal-content task-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>×</button>
+        <h2>{task ? '✏️ Editar Tarea' : '📄 Nueva Tarea'}</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Título *</label>
-            <input
-              type="text"
-              required
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              placeholder="Ingresa el título de la tarea"
-            />
+        <form onSubmit={handleSubmit} noValidate>
+          {/* Título + Estado */}
+          <div className="form-row">
+            <div className="form-group half">
+              <label>Título *</label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+                placeholder="Ingresa el título"
+                className={getFieldError('title') ? 'input-error' : ''}
+              />
+              {getFieldError('title') && <div className="error-message">{getFieldError('title')}</div>}
+            </div>
+            <div className="form-group half">
+              <label>Estado</label>
+              <select name="status" value={formData.status} onChange={handleChange}>
+                <option value="Pendiente">📋 Pendiente</option>
+                <option value="En Progreso">🔄 En Progreso</option>
+                <option value="En Revisión">🔍 En Revisión</option>
+                <option value="Completado">✅ Completado</option>
+              </select>
+            </div>
           </div>
 
+          {/* Prioridad + Horas estimadas */}
+          <div className="form-row">
+            <div className="form-group half">
+              <label>⚡ Prioridad</label>
+              <select name="priority" value={formData.priority} onChange={handleChange}>
+                <option value="Baja">Baja</option>
+                <option value="Media"> Media</option>
+                <option value="Alta">Alta</option>
+              </select>
+            </div>
+            <div className="form-group half">
+              <label>⏱️ Horas estimadas</label>
+              <input
+                type="number"
+                name="estimatedHours"
+                value={formData.estimatedHours}
+                onChange={handleChange}
+                placeholder="Ej: 8"
+                min="0"
+                step="0.5"
+                className="hours-input"
+              />
+            </div>
+          </div>
+
+          {/* Rango de fechas */}
+          <div className="form-row">
+            <div className="form-group half">
+              <label>📅 Fecha de inicio</label>
+              <input
+                type="date"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleChange}
+                max={formData.dueDate || undefined}
+                className="date-input"
+              />
+              <small className="date-hint"></small>
+            </div>
+            <div className="form-group half">
+              <label>📅 Fecha de vencimiento</label>
+              <input
+                type="date"
+                name="dueDate"
+                value={formData.dueDate}
+                onChange={handleChange}
+                min={formData.startDate || (task ? undefined : today)}
+                className="date-input"
+              />
+              <small className="date-hint">
+                {task ? '' : ''}
+              </small>
+            </div>
+          </div>
+
+          {/* Descripción */}
           <div className="form-group">
             <label>Descripción</label>
             <textarea
+              name="description"
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={handleChange}
               rows="3"
-              placeholder="Descripción detallada de la tarea"
+              placeholder="Describe la tarea..."
             />
           </div>
 
+          {/* Asignado a + Etiquetas */}
           <div className="form-row">
-            <div className="form-group">
-              <label>Estado</label>
-              <select
-                value={formData.status}
-                onChange={(e) =>
-                  setFormData({ ...formData, status: e.target.value })
-                }
-              >
-                <option value="todo">Por Hacer</option>
-                <option value="in-progress">En Progreso</option>
-                <option value="review">En Revisión</option>
-                <option value="done">Completado</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Prioridad</label>
-              <select
-                value={formData.priority}
-                onChange={(e) =>
-                  setFormData({ ...formData, priority: e.target.value })
-                }
-              >
-                <option value="low">Baja</option>
-                <option value="medium">Media</option>
-                <option value="high">Alta</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Asignado a</label>
-            <input
-              type="text"
-              value={formData.assignedTo}
-              onChange={(e) =>
-                setFormData({ ...formData, assignedTo: e.target.value })
-              }
-              placeholder="Nombre de la persona asignada"
-            />
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Fecha inicio</label>
+            <div className="form-group half">
+              <label>👤 Asignado a</label>
               <input
-                type="date"
-                value={formData.startDate}
-                min={today}
-                onChange={(e) =>
-                  setFormData({ ...formData, startDate: e.target.value })
-                }
+                type="text"
+                name="assignedTo"
+                value={formData.assignedTo}
+                onChange={handleChange}
+                placeholder="Nombre de la persona"
               />
             </div>
-
-            <div className="form-group">
-              <label>Fecha fin</label>
+            <div className="form-group half">
+              <label>🏷️ Etiquetas</label>
               <input
-                type="date"
-                value={formData.endDate}
-                min={formData.startDate || today}
-                onChange={(e) =>
-                  setFormData({ ...formData, endDate: e.target.value })
-                }
+                type="text"
+                name="tags"
+                value={formData.tags}
+                onChange={handleChange}
+                placeholder="Ej: frontend, urgente"
               />
             </div>
           </div>
 
-          <div className="form-group">
-            <label>Horas estimadas</label>
-            <input
-              type="number"
-              value={formData.estimatedHours}
-              onChange={(e) =>
-                setFormData({ ...formData, estimatedHours: e.target.value })
-              }
-              placeholder="Horas estimadas"
-              min="0"
-              step="0.5"
-            />
-          </div>
-
+          {/* Botones */}
           <div className="modal-actions">
+            <button type="submit" className="btn-primary">
+              {task ? '💾 Actualizar' : '✅ Crear'}
+            </button>
             {onDelete && (
-              <button
-                type="button"
-                className="btn-danger"
-                onClick={onDelete}
-              >
+              <button type="button" className="btn-danger" onClick={onDelete}>
                 🗑️ Eliminar
               </button>
             )}
-
-            <div className="modal-actions-right">
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={onClose}
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="submit"
-                className="btn-primary"
-              >
-                {task ? '💾 Actualizar' : '✅ Crear'}
-              </button>
-            </div>
+            <button type="button" className="btn-secondary" onClick={onClose}>
+              ❌ Cancelar
+            </button>
           </div>
         </form>
       </div>
     </div>
   );
-}
+};
 
 export default TaskModal;

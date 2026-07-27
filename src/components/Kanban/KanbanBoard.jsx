@@ -1,19 +1,20 @@
+// src/components/Kanban/KanbanBoard.jsx
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import TaskCard from './TaskCard';
 import '../../styles/components/Kanban.css';
 
 const COLUMNS = [
-  { id: 'todo', title: 'Por Hacer' },
-  { id: 'in-progress', title: 'En Progreso' },
-  { id: 'review', title: 'En Revisión' },
-  { id: 'done', title: 'Completado' }
+  { id: 'Pendiente', title: '📋 Por Hacer' },
+  { id: 'En Progreso', title: '🔄 En Progreso' },
+  { id: 'En Revisión', title: '🔍 En Revisión' },
+  { id: 'Completado', title: '✅ Completado' }
 ];
 
 // Orden de prioridades
 const PRIORITY_ORDER = {
-  high: 1,
-  medium: 2,
-  low: 3
+  Alta: 1,
+  Media: 2,
+  Baja: 3
 };
 
 function KanbanBoard({ tasks, onTaskClick, onUpdateTask }) {
@@ -46,7 +47,7 @@ function KanbanBoard({ tasks, onTaskClick, onUpdateTask }) {
 
               // Primero por prioridad
               const priorityDiff =
-                PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
+                (PRIORITY_ORDER[a.priority] || 99) - (PRIORITY_ORDER[b.priority] || 99);
 
               if (priorityDiff !== 0) return priorityDiff;
 
@@ -62,10 +63,7 @@ function KanbanBoard({ tasks, onTaskClick, onUpdateTask }) {
 
               <div className="column-header">
                 <h2>{column.title}</h2>
-
-                <span className="task-count">
-                  {columnTasks.length}
-                </span>
+                <span className="task-count">{columnTasks.length}</span>
               </div>
 
               <Droppable droppableId={column.id}>
