@@ -1,3 +1,4 @@
+// src/App.jsx
 import { Routes, Route } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Login from './components/Auth/Login';
@@ -24,6 +25,7 @@ function AppContent() {
 
   const { tasks, loading, error, addTask, updateTask, deleteTask } = useFirestore();
 
+  // Reloj en tiempo real
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
@@ -34,6 +36,7 @@ function AppContent() {
     return () => clearInterval(interval);
   }, []);
 
+  // Ocultar loader
   useEffect(() => {
     if (!loading) {
       const timer = setTimeout(() => setIsLoading(false), 400);
@@ -62,29 +65,78 @@ function AppContent() {
 
   return (
     <div className="app">
-    // src/App.jsx - Fragmento del header
-// src/App.jsx - dentro del header
-<header className="app-header">
-  <div>
-    <h1>
-      <img
-        src="/Images/rocket-loading.gif"
-        alt="Step By Step Kanban"
-        className="header-logo"
-      />
-      Step By Step Kanban
-    </h1>
-    <p className="project-info">Sistema para la gestión de proyectos</p>
-    <p className="project-info">{currentDateTime}</p>
-  </div>
-  
-</header>
+      {/* HEADER COMPLETO */}
+      <header className="app-header">
+        <div>
+          <h1>
+            <img
+              src="/Images/rocket-loading.gif"
+              alt="Step By Step Kanban"
+              className="header-logo"
+            />
+            Step By Step Kanban
+          </h1>
+          <p className="project-info">Sistema para la gestión de proyectos</p>
+          <p className="project-info">{currentDateTime}</p>
+        </div>
+
+        <div className="nav-buttons" role="tablist">
+          {['kanban', 'gantt', 'timeline'].map((v) => (
+            <button
+              key={v}
+              role="tab"
+              aria-selected={view === v}
+              className={view === v ? 'active' : ''}
+              onClick={() => setView(v)}
+            >
+              {v === 'kanban' && 'Tablero'}
+              {v === 'gantt' && 'Cronograma'}
+              {v === 'timeline' && 'Línea de tiempo'}
+            </button>
+          ))}
+          <button
+            className="btn-primary"
+            onClick={() => {
+              setSelectedTask(null);
+              setShowModal(true);
+            }}
+          >
+            + Nueva Tarea
+          </button>
+          <button className="btn-danger" onClick={logout}>
+            Cerrar sesión
+          </button>
+          <button className="floating-help" onClick={() => setShowHelp(true)}>
+            💬 Preguntas
+          </button>
+        </div>
+      </header>
+
+      {/* CONTENIDO PRINCIPAL */}
       <main className="app-main">
-        {view === 'kanban' && <KanbanBoard tasks={tasks} onTaskClick={(task) => { setSelectedTask(task); setShowModal(true); }} onUpdateTask={updateTask} />}
+        {view === 'kanban' && (
+          <KanbanBoard
+            tasks={tasks}
+            onTaskClick={(task) => {
+              setSelectedTask(task);
+              setShowModal(true);
+            }}
+            onUpdateTask={updateTask}
+          />
+        )}
         {view === 'gantt' && <GanttChart tasks={tasks} />}
         {view === 'timeline' && <TaskTimeline tasks={tasks} />}
       </main>
-      {showModal && <TaskModal task={selectedTask} onClose={() => setShowModal(false)} onSave={handleSaveTask} onDelete={selectedTask ? handleDeleteTask : null} />}
+
+      {/* MODALES */}
+      {showModal && (
+        <TaskModal
+          task={selectedTask}
+          onClose={() => setShowModal(false)}
+          onSave={handleSaveTask}
+          onDelete={selectedTask ? handleDeleteTask : null}
+        />
+      )}
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
     </div>
   );
