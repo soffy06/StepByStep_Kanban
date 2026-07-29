@@ -54,7 +54,7 @@ const faqData = [
 
 export default function HelpModal({ onClose }) {
   const [activeTab, setActiveTab] = useState('faq');
-  const [expandedIndex, setExpandedIndex] = useState(null); // Controla qué pregunta está abierta
+  const [expandedIndex, setExpandedIndex] = useState(null);
   const { addDocument } = useFirestore();
 
   const [formData, setFormData] = useState({
@@ -99,7 +99,6 @@ export default function HelpModal({ onClose }) {
     }
   };
 
-  // Alternar acordeón
   const toggleQuestion = (index) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
@@ -132,7 +131,6 @@ export default function HelpModal({ onClose }) {
                 const isExpanded = expandedIndex === index;
                 return (
                   <div key={index} className="faq-item">
-                    {/* Pregunta como "link" clickeable */}
                     <div
                       className="faq-question"
                       onClick={() => toggleQuestion(index)}
@@ -149,7 +147,6 @@ export default function HelpModal({ onClose }) {
                       <span className="faq-icon">{isExpanded ? '🔽' : '▶️'}</span>
                       <span className="faq-question-text">{item.question}</span>
                     </div>
-                    {/* Respuesta desplegable */}
                     {isExpanded && (
                       <div className="faq-answer">
                         <p>{item.answer}</p>
@@ -158,6 +155,16 @@ export default function HelpModal({ onClose }) {
                   </div>
                 );
               })}
+
+              {/* Enlace al PDF */}
+              <a
+                href={`${import.meta.env.BASE_URL}Documentacion.pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="help-pdf-link"
+              >
+                📄 Ver documentación completa (PDF)
+              </a>
             </div>
           )}
 

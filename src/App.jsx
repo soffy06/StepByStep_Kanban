@@ -106,11 +106,12 @@ function AppContent() {
           <button className="btn-danger" onClick={logout}>
             Cerrar sesión
           </button>
-          <button className="floating-help" onClick={() => setShowHelp(true)}>
-            💬 Preguntas
-          </button>
         </div>
       </header>
+
+      <button className="floating-help" onClick={() => setShowHelp(true)}>
+        💬 Preguntas
+      </button>
 
       {/* CONTENIDO PRINCIPAL */}
       <main className="app-main">
