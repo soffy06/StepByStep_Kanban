@@ -35,10 +35,6 @@ const faqData = [
     answer: 'En las vistas de cronograma y línea de tiempo, las tareas se muestran con colores según su fecha de vencimiento (verde para futuro, amarillo para cercano, rojo para vencido). Además, en el tablero, las tarjetas muestran la fecha restante.'
   },
   {
-    question: '👥 ¿Puedo trabajar con otras personas en el mismo tablero?',
-    answer: 'Actualmente no hay autenticación, por lo que cualquier persona con el enlace puede ver y modificar las tareas. En futuras versiones, implementaremos cuentas de usuario para que cada equipo tenga su propio espacio.'
-  },
-  {
     question: '📱 ¿La aplicación funciona en dispositivos móviles?',
     answer: 'Sí, el diseño es responsive y se adapta a tablets y teléfonos. Sin embargo, la función de arrastrar y soltar es más cómoda en pantallas grandes; en móviles puedes usar el modal de edición para cambiar el estado.'
   },

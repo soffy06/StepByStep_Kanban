@@ -2,17 +2,10 @@
 import { useState } from 'react';
 import '../../styles/components/Timeline.css';
 
-const STATUS_COLORS = {
-  'Pendiente': '#fdcb6e',
-  'En Progreso': '#74b9ff',
-  'En Revisión': '#a29bfe',
-  'Completado': '#55efc4'
-};
-
 const PRIORITY_LABELS = {
-  'Alta': '🔴 Alta',
-  'Media': '🟡 Media',
-  'Baja': '🟢 Baja'
+  'Alta': 'Alta',
+  'Media': 'Media',
+  'Baja': 'Baja'
 };
 
 const PRIORITY_ORDER = {
@@ -52,7 +45,10 @@ function TaskTimeline({ tasks }) {
       return new Date(a.dueDate || '9999-12-31') - new Date(b.dueDate || '9999-12-31');
     }
     if (sortBy === 'priority') {
-      return (PRIORITY_ORDER[a.priority] || 99) - (PRIORITY_ORDER[b.priority] || 99);
+      const priorityDiff = (PRIORITY_ORDER[a.priority] || 99) - (PRIORITY_ORDER[b.priority] || 99);
+      if (priorityDiff !== 0) return priorityDiff;
+      // Si tienen la misma prioridad, ordenar por fecha de vencimiento más próxima
+      return new Date(a.dueDate || '9999-12-31') - new Date(b.dueDate || '9999-12-31');
     }
     if (sortBy === 'status') {
       return a.status?.localeCompare(b.status || '');
@@ -148,50 +144,24 @@ function TaskTimeline({ tasks }) {
           sortedTasks.map(task => {
             const daysDiff = getDaysDiff(task.dueDate);
             let statusText = '';
-            let statusClass = '';
+
             if (daysDiff !== null) {
               if (daysDiff < 0) {
-                statusText = `🔴 ${Math.abs(daysDiff)} días atrasado`;
-                statusClass = 'overdue';
+                statusText = `${Math.abs(daysDiff)} días atrasado`;
               } else if (daysDiff === 0) {
-                statusText = '🟡 Vence hoy';
-                statusClass = 'today';
+                statusText = 'Vence hoy';
               } else {
-                statusText = `🟢 ${daysDiff} días restantes`;
-                statusClass = 'future';
-              }
-            }
-
-            // Calcular progreso (solo si tiene startDate y dueDate y no está completado)
-            let progress = 0;
-            if (task.startDate && task.dueDate && task.status !== 'Completado') {
-              const start = new Date(task.startDate);
-              const due = new Date(task.dueDate);
-              const now = new Date();
-              const total = due - start;
-              const elapsed = now - start;
-              if (total > 0) {
-                progress = Math.min(100, Math.max(0, (elapsed / total) * 100));
-              } else {
-                progress = 0;
+                statusText = `${daysDiff} días restantes`;
               }
             }
 
             return (
               <div key={task.id} className="timeline-item">
-                <div 
-                  className="timeline-status-bar"
-                  style={{ backgroundColor: STATUS_COLORS[task.status] || '#ddd' }}
-                />
-
                 <div className="timeline-content">
                   <div className="timeline-header">
                     <h3 className="timeline-title">{task.title}</h3>
                     <div className="timeline-badges">
-                      <span 
-                        className="status-badge"
-                        style={{ backgroundColor: STATUS_COLORS[task.status] || '#ddd' }}
-                      >
+                      <span className="status-badge">
                         {getStatusEmoji(task.status)} {task.status || 'Sin estado'}
                       </span>
                       <span className="priority-badge">
@@ -223,7 +193,7 @@ function TaskTimeline({ tasks }) {
                       </span>
                     )}
                     {task.dueDate && (
-                      <span className={`date-item ${statusClass}`}>
+                      <span className="date-item">
                         ⏰ Vence: <strong>{formatDate(task.dueDate)}</strong>
                         {statusText && (
                           <span className="days-remaining"> ({statusText})</span>
@@ -231,26 +201,6 @@ function TaskTimeline({ tasks }) {
                       </span>
                     )}
                   </div>
-
-                  {/* Barra de progreso */}
-                  {task.startDate && task.dueDate && task.status !== 'Completado' && progress > 0 && (
-                    <div className="timeline-progress">
-                      <div className="progress-bar" style={{ width: '100%' }}>
-                        <div 
-                          className="progress-fill"
-                          style={{ 
-                            width: `${Math.min(100, progress)}%`,
-                            backgroundColor: daysDiff < 0 ? '#ff6b6b' : '#74b9ff'
-                          }}
-                        />
-                      </div>
-                      <span className="progress-label">
-                        {daysDiff < 0 ? '🔴 Atrasado' : 
-                         daysDiff === 0 ? '🟡 Vence hoy' : 
-                         `🟢 ${Math.round(progress)}% completado`}
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
             );
